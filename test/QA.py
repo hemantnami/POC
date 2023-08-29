@@ -11,7 +11,9 @@ from selenium.webdriver.support.select import Select
 from webdriver_manager.chrome import ChromeDriverManager
 
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
-
+'''
+These below methods/functions  help us to generate the data
+'''
 def generate_name():
     # Generating a random name using string.ascii_letters
     return ''.join(random.choice(string.ascii_letters) for _ in range(random.randint(5, 10)))
@@ -20,11 +22,6 @@ def generate_email():
     # Generating a random email address
     domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com']
     return f"{generate_name().lower()}@{random.choice(domains)}"
-
-def generate_height():
-    # Generating a random height between 150 and 200 cm with 2 decimal places
-    return round(random.uniform(150, 200), 2)
-
 
 def gen_phone():
     first = str(random.randint(100, 999))
@@ -40,6 +37,10 @@ attributes = {
     "Name": generate_name(),
     "Email": generate_email(),
 }
+'''
+Based on the keyword that we are providing the through the module it excute respective the block
+
+'''
 def test(value):
     if value in("name" , "FirstName" ,"lastname"):
         driver.find_element(By.XPATH, '//*[@ng-model="FirstName"]').send_keys(generate_name())

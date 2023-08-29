@@ -41,3 +41,50 @@ while True:
 print("Generated XPath expressions:")
 for index, xpath in enumerate(xpath_expressions, start=1):
     print(f"{index}: {xpath}")
+def retrieve_locators(element):
+    # Retrieve locators for the given element
+    xpath = driver.execute_script(
+        "function absoluteXPath(element) {"
+        "   var comp, comps = [];"
+        "   var parent = null;"
+        "   var xpath = '';"
+        "   var getPos = function(element) {"
+        "       var position = 1, curNode;"
+        "       if (element.nodeType == Node.ATTRIBUTE_NODE) {"
+        "           return null;"
+        "       }"
+        "       for (curNode = element.previousSibling; curNode; curNode = curNode.previousSibling) {"
+        "           if (curNode.nodeName == element.nodeName) {"
+        "               ++position;"
+        "           }"
+        "       }"
+        "       return position;"
+        "   };"
+        "   while (element !== null && element.nodeType === Node.ELEMENT_NODE) {"
+        "       comp = comps[comps.length] = {};"
+        "       comp.name = element.nodeName.toLowerCase();"
+        "       comp.position = getPos(element);"
+        "       comp.prefix = null;"
+        "       comp.localName = null;"
+        "       xpath = '/' + comp.name + '[' + comp.position + ']' + xpath;"
+        "       element = element.parentNode;"
+        "   }"
+        "   return xpath;"
+        "};"
+        "return absoluteXPath(arguments[0]);", element
+    )
+    css_selector = element.value_of_css_property('selector')
+
+    return xpath, css_selector
+
+# Iterate through all elements on the page and retrieve locators
+elements = driver.find_elements_by_xpath("//*")
+for element in elements:
+    xpath, css_selector = retrieve_locators(element)
+    print(f"XPath: {xpath}")
+    print(f"CSS Selector: {css_selector}")
+    print("=" * 30)
+
+# Close the browser
+driver.quit()
+

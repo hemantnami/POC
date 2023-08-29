@@ -1,19 +1,72 @@
+import random
+import string
+import time
+from datetime import datetime, timedelta
+
+from selenium.webdriver.chrome import webdriver
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from faker import Faker
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.select import Select
 from webdriver_manager.chrome import ChromeDriverManager
-fake = Faker()
+
+driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+
+def generate_name():
+    # Generating a random name using string.ascii_letters
+    return ''.join(random.choice(string.ascii_letters) for _ in range(random.randint(5, 10)))
+
+def generate_email():
+    # Generating a random email address
+    domains = ['gmail.com', 'yahoo.com', 'outlook.com', 'example.com']
+    return f"{generate_name().lower()}@{random.choice(domains)}"
+
+def generate_height():
+    # Generating a random height between 150 and 200 cm with 2 decimal places
+    return round(random.uniform(150, 200), 2)
 
 
-browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-#browser = webdriver.Chrome(r"C:\Users\lenovo\Downloads\chromedriver_win32\chromedriver.exe")
+def gen_phone():
+    first = str(random.randint(100, 999))
+    second = str(random.randint(1, 888)).zfill(3)
 
-browser.get('http://demo.automationtesting.in/Register.html')
-browser.find_element(By.XPATH, '//*[@ng-model="FirstName"]').send_keys(fake.name())
-browser.find_element(By.XPATH, '//*[@ng-model="LastName"]').send_keys(fake.name())
-browser.find_element(By.XPATH, '//*[@ng-model="Adress"]').send_keys(fake.name())
-browser.find_element(By.XPATH, '//*[@ng-model="EmailAdress"]').send_keys(fake.name())
-browser.find_element(By.XPATH, '//*[@ng-model="Phone"]').send_keys(fake.name())
-browser.find_element(By.XPATH, '//*[@id="basicBootstrapForm"]/div[5]/div/label[1]/input').click()
+    last = (str(random.randint(1, 9998)).zfill(4))
+    while last in ['1111', '2222', '3333', '4444', '5555', '6666', '7777', '8888']:
+        last = (str(random.randint(1, 9998)).zfill(4))
+    return '{}-{}-{}'.format(first, second, last)
+
+# Test data generation
+attributes = {
+    "Name": generate_name(),
+    "Email": generate_email(),
+}
+def test(value):
+    if value in("name" , "FirstName" ,"lastname"):
+        driver.find_element(By.XPATH, '//*[@ng-model="FirstName"]').send_keys(generate_name())
+    elif value in("last","LastName","lastname"):
+        driver.find_element(By.XPATH, '//*[@ng-model="LastName"]').send_keys(generate_name())
+    elif value in("mail","email","EmailAddress"):
+        driver.find_element(By.XPATH, '//*[@ng-model="EmailAdress"]').send_keys(generate_email())
+    elif value in("Telephone","Phone","Mobile","MobileNumber"):
+        driver.find_element(By.XPATH, '//*[@ng-model="Phone"]').send_keys(gen_phone())
+    elif value=="multidropdown":
+        driver.find_element(By.ID, 'msdd').click()
+        list = ["English", "French", "Spanish", "Dutch", "Greek", "Hebrew"]
+        for i in list:
+
+            driver.find_element(By.XPATH, '//li//a[text()="' + i + '"]').click()
+    elif value == "singledropdown":
+        s = Select(driver.find_element(By.ID, 'Skills'))
+        s.select_by_index(20)
+
+
+driver.get("https://demo.automationtesting.in/Register.html")
+test("FirstName")
+test("LastName")
+test("EmailAddress")
+test("Phone")
+test("multidropdown")
+test("singledropdown")
+
+
+time.sleep(5)
